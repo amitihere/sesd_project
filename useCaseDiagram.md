@@ -1,28 +1,29 @@
+```mermaid
 flowchart LR
 
     %% Actors
-    Employee([Employee])
-    Manager([Manager])
-    FinanceAdmin([Finance Admin])
+    Employee[Employee]
+    Manager[Manager]
+    FinanceAdmin[Finance Admin]
 
     %% Employee Use Cases
-    UC1((Create Expense))
-    UC2((Submit Expense))
-    UC3((View My Expenses))
+    UC1(Create Expense)
+    UC2(Submit Expense)
+    UC3(View My Expenses)
 
     %% Manager Use Cases
-    UC4((Approve Expense))
-    UC5((Reject Expense))
-    UC6((View All Expenses))
+    UC4(Approve Expense)
+    UC5(Reject Expense)
+    UC6(View All Expenses)
 
     %% Finance Admin Use Cases
-    UC7((Approve Expense))
-    UC8((Reject Expense))
-    UC9((Mark Expense as Paid))
-    UC10((View All Expenses))
+    UC7(Approve Expense)
+    UC8(Reject Expense)
+    UC9(Mark Expense as Paid)
+    UC10(View All Expenses)
 
-    %% Common Use Cases
-    UC11((View Audit Logs))
+    %% Common Use Case
+    UC11(View Audit Logs)
 
     %% Relationships
     Employee --> UC1
@@ -38,7 +39,6 @@ flowchart LR
     FinanceAdmin --> UC9
     FinanceAdmin --> UC10
 
-    %% Logs (accessible to all in current system)
     Employee --> UC11
     Manager --> UC11
     FinanceAdmin --> UC11

@@ -1,6 +1,5 @@
+```mermaid
 classDiagram
-
-%% ================= ENUMS =================
 
 class UserRole {
     <<enumeration>>
@@ -25,98 +24,84 @@ class ExpenseType {
     MEDICAL
 }
 
-%% ================= MODELS =================
-
 class User {
-    -number id
-    -string name
-    -string email
-    -UserRole role
+    id
+    name
+    email
+    role
 }
 
 class Expense {
-    -number id
-    -ExpenseType type
-    -number amount
-    -string description
-    -number employeeId
-    -ExpenseStatus status
+    id
+    type
+    amount
+    description
+    employeeId
+    status
 }
 
 class AuditLog {
-    -number id
-    -number userId
-    -number expenseId
-    -string action
-    -string fromStatus
-    -string toStatus
-    -Date timestamp
+    id
+    userId
+    expenseId
+    action
+    fromStatus
+    toStatus
+    timestamp
 }
-
-%% ================= REPOSITORY =================
 
 class UserRepository {
-    +create(name, email, role) User
-    +getAllUsers() User[]
-    +getUserById(id) User
+    create()
+    getAllUsers()
+    getUserById()
 }
 
-%% ================= SERVICES =================
-
 class UserService {
-    +create(name, email, role) User
-    +getAllUsers() User[]
-    +getUserById(id) User
+    create()
+    getAllUsers()
+    getUserById()
 }
 
 class ExpenseService {
-    -expenses: Expense[]
-    +createExpense()
-    +submitExpense()
-    +approveExpense()
-    +rejectExpense()
-    +markAsPaid()
-    +getExpensesByEmployee()
-    +getAllExpenses()
+    createExpense()
+    submitExpense()
+    approveExpense()
+    rejectExpense()
+    markAsPaid()
+    getExpensesByEmployee()
+    getAllExpenses()
 }
 
 class AuditService {
-    -logs: AuditLog[]
-    +logAction()
-    +getLogsForExpense()
-    +getAllLogs()
+    logAction()
+    getLogsForExpense()
+    getAllLogs()
 }
 
-%% ================= CONTROLLERS =================
-
 class UserController {
-    +create()
-    +getAllUsers()
-    +getUserById()
+    create()
+    getAllUsers()
+    getUserById()
 }
 
 class ExpenseController {
-    +create()
-    +submit()
-    +approve()
-    +reject()
-    +markPaid()
-    +getMine()
-    +getAll()
-    +getLogs()
+    create()
+    submit()
+    approve()
+    reject()
+    markPaid()
+    getMine()
+    getAll()
+    getLogs()
 }
 
-%% ================= ROUTES =================
-
 class UserRoutes {
-    +setupRoutes()
+    setupRoutes()
 }
 
 class ExpenseRoutes {
-    +setupRoutes()
+    setupRoutes()
 }
-
-%% ================= RELATIONSHIPS =================
 
 UserService --> UserRepository
 UserController --> UserService

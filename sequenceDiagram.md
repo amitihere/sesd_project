@@ -1,3 +1,4 @@
+```mermaid
 sequenceDiagram
 
     actor Employee
@@ -9,64 +10,51 @@ sequenceDiagram
     participant UserService
     participant AuditService
 
-    %% ================= CREATE =================
-
-    Employee ->> ExpenseController: createExpense(type, amount, desc)
-    ExpenseController ->> ExpenseService: createExpense(userId, ...)
-    ExpenseService ->> UserService: getUserById(userId)
-    ExpenseService ->> ExpenseService: store in memory
-    ExpenseService ->> AuditService: log(CREATE)
+    %% CREATE
+    Employee ->> ExpenseController: createExpense
+    ExpenseController ->> ExpenseService: createExpense
+    ExpenseService ->> UserService: getUserById
+    ExpenseService ->> ExpenseService: store expense
+    ExpenseService ->> AuditService: log CREATE
     ExpenseService -->> ExpenseController: expense
     ExpenseController -->> Employee: response
 
-    %% ================= SUBMIT =================
-
-    Employee ->> ExpenseController: submitExpense(expenseId)
-    ExpenseController ->> ExpenseService: submitExpense(expenseId, userId)
-    ExpenseService ->> ExpenseService: validate ownership & status
-    ExpenseService ->> ExpenseService: set status = SUBMITTED
+    %% SUBMIT
+    Employee ->> ExpenseController: submitExpense
+    ExpenseController ->> ExpenseService: submitExpense
+    ExpenseService ->> ExpenseService: validate and set SUBMITTED
 
     alt amount < 1000
-        ExpenseService ->> ExpenseService: auto approve
+        ExpenseService ->> ExpenseService: auto APPROVED
     end
 
-    ExpenseService ->> AuditService: log(SUBMIT)
+    ExpenseService ->> AuditService: log SUBMIT
     ExpenseService -->> ExpenseController: expense
     ExpenseController -->> Employee: response
 
-    %% ================= APPROVE =================
-
-    Manager ->> ExpenseController: approveExpense(expenseId)
-    FinanceAdmin ->> ExpenseController: approveExpense(expenseId)
-
-    ExpenseController ->> ExpenseService: approveExpense(expenseId, userId)
-    ExpenseService ->> UserService: getUserById(userId)
-    ExpenseService ->> ExpenseService: validate role & status
-    ExpenseService ->> ExpenseService: set status = APPROVED
-    ExpenseService ->> AuditService: log(APPROVE)
-    ExpenseService -->> ExpenseController: expense
-    ExpenseController -->> Manager: response
-    ExpenseController -->> FinanceAdmin: response
-
-    %% ================= REJECT =================
-
-    Manager ->> ExpenseController: rejectExpense(expenseId)
-    FinanceAdmin ->> ExpenseController: rejectExpense(expenseId)
-
-    ExpenseController ->> ExpenseService: rejectExpense(expenseId, userId)
-    ExpenseService ->> UserService: getUserById(userId)
-    ExpenseService ->> ExpenseService: validate role & status
-    ExpenseService ->> ExpenseService: set status = REJECTED
-    ExpenseService ->> AuditService: log(REJECT)
+    %% APPROVE
+    Manager ->> ExpenseController: approveExpense
+    FinanceAdmin ->> ExpenseController: approveExpense
+    ExpenseController ->> ExpenseService: approveExpense
+    ExpenseService ->> UserService: getUserById
+    ExpenseService ->> ExpenseService: validate and set APPROVED
+    ExpenseService ->> AuditService: log APPROVE
     ExpenseService -->> ExpenseController: expense
 
-    %% ================= PAY =================
+    %% REJECT
+    Manager ->> ExpenseController: rejectExpense
+    FinanceAdmin ->> ExpenseController: rejectExpense
+    ExpenseController ->> ExpenseService: rejectExpense
+    ExpenseService ->> UserService: getUserById
+    ExpenseService ->> ExpenseService: validate and set REJECTED
+    ExpenseService ->> AuditService: log REJECT
+    ExpenseService -->> ExpenseController: expense
 
-    FinanceAdmin ->> ExpenseController: markAsPaid(expenseId)
-    ExpenseController ->> ExpenseService: markAsPaid(expenseId, userId)
-    ExpenseService ->> UserService: getUserById(userId)
-    ExpenseService ->> ExpenseService: validate role & status
-    ExpenseService ->> ExpenseService: set status = PAID
-    ExpenseService ->> AuditService: log(PAY)
+    %% PAY
+    FinanceAdmin ->> ExpenseController: markAsPaid
+    ExpenseController ->> ExpenseService: markAsPaid
+    ExpenseService ->> UserService: getUserById
+    ExpenseService ->> ExpenseService: validate and set PAID
+    ExpenseService ->> AuditService: log PAY
     ExpenseService -->> ExpenseController: expense
     ExpenseController -->> FinanceAdmin: response
