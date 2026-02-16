@@ -1,5 +1,3 @@
-# Use case Diagram
-```mermaid
 flowchart LR
 
     %% Actors
@@ -8,22 +6,23 @@ flowchart LR
     FinanceAdmin([Finance Admin])
 
     %% Employee Use Cases
-    UC1((Create Draft Expense))
+    UC1((Create Expense))
     UC2((Submit Expense))
-    UC3((View Expense Status))
+    UC3((View My Expenses))
 
     %% Manager Use Cases
     UC4((Approve Expense))
     UC5((Reject Expense))
-    UC6((View Team Expenses))
+    UC6((View All Expenses))
 
     %% Finance Admin Use Cases
-    UC7((Final Approval))
-    UC8((Mark Expense as Paid))
-    UC9((Generate Financial Reports))
+    UC7((Approve Expense))
+    UC8((Reject Expense))
+    UC9((Mark Expense as Paid))
+    UC10((View All Expenses))
 
-    %% Audit System
-    UC10((Log Audit Action))
+    %% Common Use Cases
+    UC11((View Audit Logs))
 
     %% Relationships
     Employee --> UC1
@@ -37,20 +36,9 @@ flowchart LR
     FinanceAdmin --> UC7
     FinanceAdmin --> UC8
     FinanceAdmin --> UC9
+    FinanceAdmin --> UC10
 
-    %% System Logging (included automatically)
-    UC1 --> UC10
-    UC2 --> UC10
-    UC4 --> UC10
-    UC5 --> UC10
-    UC7 --> UC10
-    UC8 --> UC10
-```
-## Authentication & Authorization:
-All incoming requests are intercepted and validated to ensure the user is authenticated and has the correct role (Employee, Manager, Finance Admin) before performing any action.
-
-## Workflow Enforcement:
-The Service layer enforces business rules such as approval routing (Manager → Finance), valid state transitions (DRAFT → SUBMITTED → APPROVED → PAID), and prevents invalid operations.
-
-## Audit & Transaction Integrity:
-Every action (Submit, Approve, Reject, Pay) is logged in the AuditLog, and changes are committed to the database only after successful business validation to maintain consistency and traceability.
+    %% Logs (accessible to all in current system)
+    Employee --> UC11
+    Manager --> UC11
+    FinanceAdmin --> UC11
