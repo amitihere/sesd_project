@@ -1,13 +1,6 @@
-import express from "express";
-import authRoutes from "./routes/auth.routes";
-import reimbursementRoutes from "./routes/reimbursement.routes";
+import { Server } from "./server";
 
-const app = express();
-app.use(express.json());
+const PORT = 3000;
 
-app.use("/api/auth", authRoutes);
-app.use("/api/reimbursement", reimbursementRoutes);
-
-app.listen(3000, () => {
-  console.log("Server started on http://localhost:3000");
-});
+const server = new Server(PORT);
+server.start();
