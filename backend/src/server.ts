@@ -1,15 +1,20 @@
 import express, { Application } from "express";
-import authRoutes from "./routes/auth.routes";
-// import reimbursementRoutes from "./routes/reimbursement.routes";
+import { UserRepository } from "./repository/User.repo";
+import { UserService } from "./services/UserService";
+import { UserController } from "./controllers/UserController";
+import { UserRoutes } from "./routes/userRoutes";
 
-export class Server {
-  private app: Application;
-  private port: number;
+import { ExpenseService } from "./services/ExpenseService";
+import { AuditService } from "./services/AuditService";
+import { ExpenseController } from "./controllers/ExpenseController";
+import { ExpenseRoutes } from "./routes/expenseRoutes";
 
-  constructor(port: number) {
+export default class Server {
+  public app: Application;
+  port:number = 3000;
+
+  constructor() {
     this.app = express();
-    this.port = port;
-
     this.initializeMiddlewares();
     this.initializeRoutes();
   }
@@ -19,12 +24,31 @@ export class Server {
   }
 
   private initializeRoutes(): void {
-    this.app.use("/api/auth", authRoutes);
+    const userRepository = new UserRepository();
+    const userService = new UserService(userRepository);
+    const userController = new UserController(userService);
+    const userRoutes = new UserRoutes(userController);
+
+    this.app.get("/", (req, res) => {
+      res.json({ message: "Welcome to User API" });
+    });
+
+    this.app.use("/api/users", userRoutes.router);
+
+
+    const auditService = new AuditService();
+    const expenseService = new ExpenseService(userService, auditService);
+    const expenseController = new ExpenseController(expenseService, auditService);
+    const expenseRoutes = new ExpenseRoutes(expenseController);
+
+    this.app.use("/api/expenses", expenseRoutes.router);
+
   }
+
 
   public start(): void {
     this.app.listen(this.port, () => {
-      console.log(`Server started on using OOPS http://localhost:${this.port}`);
+      console.log(`Server running on http://localhost:${this.port}`);
     });
   }
 }

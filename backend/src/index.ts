@@ -1,6 +1,5 @@
-import { Server } from "./server";
+import Server from './server';
 
-const PORT = 3000;
+const server = new Server();
 
-const server = new Server(PORT);
 server.start();
