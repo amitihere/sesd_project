@@ -82,7 +82,7 @@ export class ExpenseController {
     }
   };
 
-  // GET /api/expenses/mine — get my expenses (employee)
+  // GET /api/expenses/mine — get my expenses
   getMine = (req: Request, res: Response): void => {
     try {
       const userId = this.getUserId(req);
@@ -93,7 +93,7 @@ export class ExpenseController {
     }
   };
 
-  // GET /api/expenses — get all expenses (manager/finance)
+  // GET /api/expenses — get all expenses
   getAll = (req: Request, res: Response): void => {
     const expenses = this.expenseService.getAllExpenses();
     res.json({ expenses });

@@ -10,17 +10,15 @@ export class ExpenseRoutes {
   }
 
   private setupRoutes(): void {
-    // employee routes
+
     this.router.post("/", this.controller.create);
     this.router.get("/mine", this.controller.getMine);
 
-    // action routes
     this.router.post("/:id/submit", this.controller.submit);
     this.router.post("/:id/approve", this.controller.approve);
     this.router.post("/:id/reject", this.controller.reject);
     this.router.post("/:id/pay", this.controller.markPaid);
 
-    // query routes
     this.router.get("/", this.controller.getAll);
     this.router.get("/:id/logs", this.controller.getLogs);
   }
