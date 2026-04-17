@@ -1,42 +1,28 @@
-import { User, Employee, Manager, FinanceAdmin, UserRole } from "../models/User";
+import { UserModel, IUserDocument } from "../schemas/UserSchema";
+import { UserRole } from "../models/User";
 
 export class UserRepository {
-  private users: User[] = [];
-  private nextId: number = 1;
-
-  // Create a new user for time being 
-  create(name: string, email: string, role: string): User {
-    const exists = this.users.find((u) => u.email === email);
+  // Create a new user in MongoDB
+  async create(name: string, email: string, role: string): Promise<IUserDocument> {
+    const exists = await UserModel.findOne({ email });
     if (exists) {
       throw new Error("A user with this email already exists.");
     }
 
     const roles = Object.values(UserRole);
-
-    if (!roles.includes(role as any)) {
+    if (!roles.includes(role as UserRole)) {
       throw new Error(`Invalid role. Choose one of: ${roles.join(", ")}`);
     }
 
-    const id = this.nextId++;
-    let user: User;
-
-    if (role === UserRole.EMPLOYEE) {
-      user = new Employee(id, name, email);
-    } else if (role === UserRole.MANAGER) {
-      user = new Manager(id, name, email);
-    } else {
-      user = new FinanceAdmin(id, name, email);
-    }
-
-    this.users.push(user);
+    const user = await UserModel.create({ name, email, role });
     return user;
   }
 
-  getUserById(id: number): User | undefined {
-    return this.users.find((u) => u.id === id);
+  async getUserById(id: string): Promise<IUserDocument | null> {
+    return UserModel.findById(id);
   }
 
-  getAllUsers(): User[] {
-    return this.users;
+  async getAllUsers(): Promise<IUserDocument[]> {
+    return UserModel.find();
   }
 }
