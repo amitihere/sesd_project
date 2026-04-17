@@ -1,23 +1,19 @@
 import { UserRepository } from "../repository/User.repo";
-import { User } from "../models/User";
+import { IUserDocument } from "../schemas/UserSchema";
 
 export class UserService {
   constructor(private userRepository: UserRepository) {}
 
-  create = (name: string, email: string, role: string): User => {
-    console.log("service entered")
-
+  create = async (name: string, email: string, role: string): Promise<IUserDocument> => {
     const normalizedEmail = email.toLowerCase();
-
     return this.userRepository.create(name, normalizedEmail, role);
   }
 
-  getAllUsers = (): User[] => {
-    console.log("entered the service for get all")
+  getAllUsers = async (): Promise<IUserDocument[]> => {
     return this.userRepository.getAllUsers();
   }
 
-  getUserById = (id: number): User | undefined => {
+  getUserById = async (id: string): Promise<IUserDocument | null> => {
     return this.userRepository.getUserById(id);
   }
 }

@@ -1,24 +1,24 @@
-import { AuditLog } from "../models/AuditLog";
+import { AuditLogRepository } from "../repository/AuditLog.repo";
+import { IAuditLogDocument } from "../schemas/AuditLogSchema";
 
 export class AuditService {
-  private logs: AuditLog[] = [];
+  constructor(private auditLogRepository: AuditLogRepository) {}
 
-  logAction(
-    userId: number,
-    expenseId: number,
+  async logAction(
+    userId: string,
+    expenseId: string,
     action: string,
     fromStatus: string,
     toStatus: string
-  ): void {
-    const log = new AuditLog(userId, expenseId, action, fromStatus, toStatus);
-    this.logs.push(log);
+  ): Promise<void> {
+    await this.auditLogRepository.create(userId, expenseId, action, fromStatus, toStatus);
   }
 
-  getLogsForExpense(expenseId: number): AuditLog[] {
-    return this.logs.filter((log) => log.expenseId === expenseId);
+  async getLogsForExpense(expenseId: string): Promise<IAuditLogDocument[]> {
+    return this.auditLogRepository.findByExpenseId(expenseId);
   }
 
-  getAllLogs(): AuditLog[] {
-    return this.logs;
+  async getAllLogs(): Promise<IAuditLogDocument[]> {
+    return this.auditLogRepository.findAll();
   }
 }

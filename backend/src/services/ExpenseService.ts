@@ -1,23 +1,24 @@
-import { Expense, ExpenseType, ExpenseStatus } from "../models/Expense";
+import { ExpenseType, ExpenseStatus } from "../models/Expense";
+import { ExpenseRepository } from "../repository/Expense.repo";
 import { AuditService } from "./AuditService";
 import { UserService } from "./UserService";
 import { UserRole } from "../models/User";
+import { IExpenseDocument } from "../schemas/ExpenseSchema";
 
 export class ExpenseService {
-  private expenses: Expense[] = [];
-
   constructor(
     private userService: UserService,
-    private auditService: AuditService
+    private auditService: AuditService,
+    private expenseRepository: ExpenseRepository
   ) {}
 
-  createExpense(
-    userId: number,
+  async createExpense(
+    userId: string,
     type: string,
     amount: number,
     description: string
-  ): Expense {
-    const user = this.userService.getUserById(userId);
+  ): Promise<IExpenseDocument> {
+    const user = await this.userService.getUserById(userId);
     if (!user) throw new Error("User not found");
 
     if (user.role !== UserRole.EMPLOYEE) {
@@ -29,41 +30,42 @@ export class ExpenseService {
       throw new Error("Invalid expense type");
     }
 
-    const expense = new Expense(expenseType, amount, description, userId);
-    this.expenses.push(expense);
+    const status =
+      amount < 1000 ? ExpenseStatus.APPROVED : ExpenseStatus.SUBMITTED;
 
-    this.auditService.logAction(userId, expense.id, "CREATE", "none", expense.status);
+    const expense = await this.expenseRepository.create(
+      expenseType,
+      amount,
+      description,
+      userId,
+      status
+    );
+
+    await this.auditService.logAction(
+      userId,
+      expense._id.toString(),
+      "SUBMIT",
+      "none",
+      status
+    );
 
     return expense;
   }
 
-  submitExpense(expenseId: number, userId: number): Expense {
-    const exp = this.find(expenseId);
+  async submitExpense(expenseId: string, userId: string): Promise<IExpenseDocument> {
+    const exp = await this.find(expenseId);
 
     if (exp.employeeId !== userId) {
-      throw new Error("You can only submit your own expense");
+      throw new Error("You can only access your own expense");
     }
 
-    if (exp.status !== ExpenseStatus.DRAFT) {
-      throw new Error("Only draft can be submitted");
-    }
-
-    const old = exp.status;
-    exp.status = ExpenseStatus.SUBMITTED;
-
-    // SIMPLE RULE (instead of approval chain)
-    if (exp.amount < 1000) {
-      exp.status = ExpenseStatus.APPROVED;
-    }
-
-    this.auditService.logAction(userId, exp.id, "SUBMIT", old, exp.status);
-
+    // Already submitted at creation time
     return exp;
   }
 
-  approveExpense(expenseId: number, userId: number): Expense {
-    const exp = this.find(expenseId);
-    const user = this.userService.getUserById(userId);
+  async approveExpense(expenseId: string, userId: string): Promise<IExpenseDocument> {
+    const exp = await this.find(expenseId);
+    const user = await this.userService.getUserById(userId);
 
     if (!user) throw new Error("User not found");
 
@@ -79,16 +81,25 @@ export class ExpenseService {
     }
 
     const old = exp.status;
-    exp.status = ExpenseStatus.APPROVED;
+    const updated = await this.expenseRepository.updateStatus(
+      expenseId,
+      ExpenseStatus.APPROVED
+    );
 
-    this.auditService.logAction(userId, exp.id, "APPROVE", old, exp.status);
+    await this.auditService.logAction(
+      userId,
+      expenseId,
+      "APPROVE",
+      old,
+      ExpenseStatus.APPROVED
+    );
 
-    return exp;
+    return updated!;
   }
 
-  rejectExpense(expenseId: number, userId: number): Expense {
-    const exp = this.find(expenseId);
-    const user = this.userService.getUserById(userId);
+  async rejectExpense(expenseId: string, userId: string): Promise<IExpenseDocument> {
+    const exp = await this.find(expenseId);
+    const user = await this.userService.getUserById(userId);
 
     if (!user) throw new Error("User not found");
 
@@ -104,16 +115,25 @@ export class ExpenseService {
     }
 
     const old = exp.status;
-    exp.status = ExpenseStatus.REJECTED;
+    const updated = await this.expenseRepository.updateStatus(
+      expenseId,
+      ExpenseStatus.REJECTED
+    );
 
-    this.auditService.logAction(userId, exp.id, "REJECT", old, exp.status);
+    await this.auditService.logAction(
+      userId,
+      expenseId,
+      "REJECT",
+      old,
+      ExpenseStatus.REJECTED
+    );
 
-    return exp;
+    return updated!;
   }
 
-  markAsPaid(expenseId: number, userId: number): Expense {
-    const exp = this.find(expenseId);
-    const user = this.userService.getUserById(userId);
+  async markAsPaid(expenseId: string, userId: string): Promise<IExpenseDocument> {
+    const exp = await this.find(expenseId);
+    const user = await this.userService.getUserById(userId);
 
     if (!user) throw new Error("User not found");
 
@@ -126,23 +146,32 @@ export class ExpenseService {
     }
 
     const old = exp.status;
-    exp.status = ExpenseStatus.PAID;
+    const updated = await this.expenseRepository.updateStatus(
+      expenseId,
+      ExpenseStatus.PAID
+    );
 
-    this.auditService.logAction(userId, exp.id, "PAY", old, exp.status);
+    await this.auditService.logAction(
+      userId,
+      expenseId,
+      "PAY",
+      old,
+      ExpenseStatus.PAID
+    );
 
-    return exp;
+    return updated!;
   }
 
-  getExpensesByEmployee(userId: number): Expense[] {
-    return this.expenses.filter(e => e.employeeId === userId);
+  async getExpensesByEmployee(userId: string): Promise<IExpenseDocument[]> {
+    return this.expenseRepository.findByEmployeeId(userId);
   }
 
-  getAllExpenses(): Expense[] {
-    return this.expenses;
+  async getAllExpenses(): Promise<IExpenseDocument[]> {
+    return this.expenseRepository.findAll();
   }
 
-  private find(id: number): Expense {
-    const exp = this.expenses.find(e => e.id === id);
+  private async find(id: string): Promise<IExpenseDocument> {
+    const exp = await this.expenseRepository.findById(id);
     if (!exp) throw new Error("Expense not found");
     return exp;
   }
