@@ -25,6 +25,6 @@ export class ExpenseRepository {
   }
 
   async updateStatus(id: string, status: ExpenseStatus): Promise<IExpenseDocument | null> {
-    return ExpenseModel.findByIdAndUpdate(id, { status }, { new: true });
+    return ExpenseModel.findByIdAndUpdate(id, { status }, { returnDocument: 'after' });
   }
 }

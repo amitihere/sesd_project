@@ -8,14 +8,12 @@ export class ExpenseController {
     private auditService: AuditService
   ) {}
 
-  // helper to read user id from the X-User-Id header
   private getUserId(req: Request): string {
     const header = req.headers["x-user-id"];
     if (!header) throw new Error("X-User-Id header is required.");
     return String(header);
   }
 
-  // POST /api/expenses — create a draft expense
   create = async (req: Request, res: Response): Promise<void> => {
     try {
       const userId = this.getUserId(req);
@@ -31,7 +29,6 @@ export class ExpenseController {
     }
   };
 
-  // POST /api/expenses/:id/submit
   submit = async (req: Request, res: Response): Promise<void> => {
     try {
       const userId = this.getUserId(req);
@@ -57,7 +54,6 @@ export class ExpenseController {
     }
   };
 
-  // POST /api/expenses/:id/reject
   reject = async (req: Request, res: Response): Promise<void> => {
     try {
       const userId = this.getUserId(req);
@@ -70,7 +66,6 @@ export class ExpenseController {
     }
   };
 
-  // POST /api/expenses/:id/pay
   markPaid = async (req: Request, res: Response): Promise<void> => {
     try {
       const userId = this.getUserId(req);
@@ -83,7 +78,6 @@ export class ExpenseController {
     }
   };
 
-  // GET /api/expenses/mine — get my expenses
   getMine = async (req: Request, res: Response): Promise<void> => {
     try {
       const userId = this.getUserId(req);
@@ -94,7 +88,6 @@ export class ExpenseController {
     }
   };
 
-  // GET /api/expenses — get all expenses
   getAll = async (req: Request, res: Response): Promise<void> => {
     try {
       const expenses = await this.expenseService.getAllExpenses();
@@ -104,7 +97,6 @@ export class ExpenseController {
     }
   };
 
-  // GET /api/expenses/:id/logs — audit logs for an expense
   getLogs = async (req: Request, res: Response): Promise<void> => {
     try {
       const expenseId = String(req.params.id);

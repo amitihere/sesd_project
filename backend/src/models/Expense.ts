@@ -10,4 +10,9 @@ export enum ExpenseType {
   FOOD = "food",
   TRAVEL = "travel",
   MEDICAL = "medical",
+  ACCOMMODATION = "accommodation",
+  EQUIPMENT = "equipment",
+  SOFTWARE = "software",
+  TRAINING = "training",
+  OTHER = "other",
 }
