@@ -1,4 +1,4 @@
-const BASE = '/api';
+const BASE = import.meta.env.VITE_API_URL || '/api';
 
 function getUserId() {
   const user = JSON.parse(localStorage.getItem('user') || 'null');
